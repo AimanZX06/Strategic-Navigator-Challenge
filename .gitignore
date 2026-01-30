@@ -1,0 +1,16 @@
+# PYTHON (Backend)
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+.env
+
+# ML ARTIFACTS
+# *.pkl
+
+# SYSTEM FILES
+.DS_Store
+Thumbs.db
+.vscode/

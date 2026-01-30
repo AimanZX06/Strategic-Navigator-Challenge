@@ -3,11 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 venv/
-env/
-.venv/
 .env
 
-# NODE.JS / FRONTEND (The Critical Part)
+# NODE.JS (Frontend)
 node_modules/
 .next/
 build/

@@ -1,65 +1,61 @@
-import Image from "next/image";
+"use client";
+import { useEffect, useState } from 'react';
+import PoolingSimulator from './components/PoolingSimulator';
+
+// 1. Define the Shape of a Ship
+// This tells what data to expect from the API
+export interface Ship {
+  ship_id: string;
+  ship_type: string;
+  route_id: string;
+  Compliance_Status: string;
+  Compliance_Balance: number;
+}
 
 export default function Home() {
+  // 2. Tell 'fleet' is a list of 'Ship' objects
+  const [fleet, setFleet] = useState<Ship[]>([]);
+
+  useEffect(() => {
+    // Fetch data from your FastAPI backend
+    fetch('http://127.0.0.1:8000/api/fleet')
+      .then((res) => res.json())
+      .then((data) => setFleet(data))
+      .catch(err => console.error("API Error:", err));
+  }, []);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <main className="p-8 bg-slate-50 min-h-screen">
+      <h1 className="text-3xl font-bold mb-6 text-slate-800">MindX Strategic Navigator</h1>
+      
+      {/* Fleet Liability Map */}
+      <h2 className="text-xl font-semibold mb-4 text-slate-700">Fleet Liability Map</h2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        {/* We map through the first 9 ships to keep the UI clean */}
+        {fleet.slice(0, 9).map((ship, index) => (
+          <div key={index} className={`p-4 rounded-lg shadow border-l-4 ${
+            ship.Compliance_Status === 'Deficit' ? 'bg-red-50 border-red-500' : 'bg-green-50 border-green-500'
+          }`}>
+            <h3 className="font-bold text-lg text-slate-900">{ship.ship_id}</h3>
+            <p className="text-sm text-gray-600">Type: {ship.ship_type}</p>
+            <div className="mt-2 flex justify-between items-center">
+                {/* Badge for Status */}
+                <span className={`px-2 py-1 rounded text-xs font-bold ${
+                    ship.Compliance_Status === 'Deficit' ? 'bg-red-200 text-red-800' : 'bg-green-200 text-green-800'
+                }`}>
+                    {ship.Compliance_Status}
+                </span>
+                {/* Balance Number */}
+                <span className="text-xs font-mono text-slate-500">
+                    {Number(ship.Compliance_Balance).toFixed(2)}
+                </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* TASK B.2: Pooling Simulator Component */}
+      <PoolingSimulator fleet={fleet} />
+    </main>
   );
 }

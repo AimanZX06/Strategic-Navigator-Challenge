@@ -7,6 +7,13 @@ env/
 .venv/
 .env
 
+# NODE.JS / FRONTEND (The Critical Part)
+node_modules/
+.next/
+build/
+dist/
+.env.local
+
 # ML ARTIFACTS
 # *.pkl
 

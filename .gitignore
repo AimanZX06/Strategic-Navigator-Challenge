@@ -3,9 +3,15 @@ __pycache__/
 *.py[cod]
 *$py.class
 venv/
-env/
-.venv/
 .env
+
+
+# NODE.JS (Frontend))
+node_modules/
+.next/
+build/
+dist/
+.env.local
 
 # ML ARTIFACTS
 # *.pkl

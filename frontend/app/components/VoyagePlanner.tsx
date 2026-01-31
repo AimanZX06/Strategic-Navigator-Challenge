@@ -11,6 +11,7 @@ interface PredictionResult {
     ghg_intensity: number;
     compliance_status: string;
     compliance_balance: number;
+    target_used: number; // Added to match the backend response
 }
 
 export default function VoyagePlanner({ darkMode = false }: VoyagePlannerProps) {
@@ -18,7 +19,7 @@ export default function VoyagePlanner({ darkMode = false }: VoyagePlannerProps) 
     const [shipType, setShipType] = useState("Oil Service Boat");
     const [distance, setDistance] = useState("");
     const [fuel, setFuel] = useState("");
-    const [fuelType, setFuelType] = useState("HFO"); // NEW: Fuel Type for Energy Calc
+    const [fuelType, setFuelType] = useState("HFO");
 
     // Output State
     const [result, setResult] = useState<PredictionResult | null>(null);
@@ -54,7 +55,7 @@ export default function VoyagePlanner({ darkMode = false }: VoyagePlannerProps) 
                     ship_type: shipType,
                     distance: parseFloat(distance),
                     fuel_consumption: parseFloat(fuel),
-                    fuel_type: fuelType // NEW: Sending fuel type
+                    fuel_type: fuelType 
                 }),
             });
 
@@ -121,7 +122,7 @@ export default function VoyagePlanner({ darkMode = false }: VoyagePlannerProps) 
                     </select>
                 </div>
 
-                {/* Input 2: Fuel Type (NEW) */}
+                {/* Input 2: Fuel Type */}
                 <div>
                     <label className={`flex items-center gap-2 text-sm font-bold mb-3 uppercase ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
                         <span className="w-3 h-3 bg-pink-500 rounded-full"></span>
@@ -214,9 +215,13 @@ export default function VoyagePlanner({ darkMode = false }: VoyagePlannerProps) 
                                 <p className={`text-4xl font-bold ${result.compliance_status === 'Surplus' ? 'text-green-600' : 'text-red-600'}`}>
                                     {result.ghg_intensity.toFixed(2)}
                                 </p>
-                                <span className="text-sm font-bold text-slate-500">gCO2/MJ</span>
+                                {/* OLD UNIT: gCO2/MJ (Commented Out) */}
+                                {/* <span className="text-sm font-bold text-slate-500">gCO2/MJ</span> */}
+
+                                {/* NEW UNIT: kg/nm */}
+                                <span className="text-sm font-bold text-slate-500">kg/nm</span>
                              </div>
-                             <p className="text-xs text-slate-400 mt-1">Target: &lt; 89.34</p>
+                             <p className="text-xs text-slate-400 mt-1">Target: &lt; {result.target_used}</p>
                         </div>
 
                         {/* 3. Compliance Status */}

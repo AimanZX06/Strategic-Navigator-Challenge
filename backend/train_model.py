@@ -27,10 +27,10 @@ except FileNotFoundError:
 # Calculate Energy Consumed (MJ)
 # Need to calculate the energy for every single voyage first
 # Logic: Energy (MJ) = Fuel (kg) * LCV (MJ/kg)
-df['Energy_MJ'] = df.apply(
-    lambda row: row['fuel_consumption'] * LCV_FACTORS.get(row['fuel_type'], 40.2), 
-    axis=1
-)
+# df['Energy_MJ'] = df.apply(
+#    lambda row: row['fuel_consumption'] * LCV_FACTORS.get(row['fuel_type'], 40.2), 
+#    axis=1
+# )
 
 # 2. Aggregate by Ship (Annual totals per vessel)
 # Each ship has multiple voyages - we need ONE compliance status per vessel
@@ -39,22 +39,32 @@ ship_df = df.groupby('ship_id').agg({
     'CO2_emissions': 'sum',         # Total annual CO2 emissions
     'distance': 'sum',              # Total annual distance
     'fuel_consumption': 'sum',      # Total annual fuel consumption
-    'Energy_MJ': 'sum'              # Total annual energy
+    # 'Energy_MJ': 'sum'              # Total annual energy (COMMENTED OUT)
 }).reset_index()
 
 print(f"Aggregated {len(df)} voyages into {len(ship_df)} unique vessels.")
 
 # 3. GHG Intensity Calculation (per vessel)
+
+# --- OPTION A: ENERGY INTENSITY (Commented Out) ---
 # Formula: Grams of CO2 / Energy in MJ
-ship_df['GHG_Intensity'] = (ship_df['CO2_emissions'] * 1000) / ship_df['Energy_MJ']
+# ship_df['GHG_Intensity'] = (ship_df['CO2_emissions'] * 1000) / ship_df['Energy_MJ']
+
+# --- OPTION B: OPERATIONAL INTENSITY (Active) ---
+# Formula: kg CO2 / Nautical Mile (Distance)
+ship_df['GHG_Intensity'] = ship_df['CO2_emissions'] / ship_df['distance']
 
 # 4. Regulatory Benchmarking
 # Target is 5% lower than fleet average
 # Calculate a dynamic target based on the fleet average to keep it relative.
 avg_intensity = ship_df['GHG_Intensity'].mean()
 target_2026 = avg_intensity * 0.95
-print(f"Current Fleet Avg Intensity: {avg_intensity:.2f} gCO2/MJ")
-print(f"2026 Target Intensity:       {target_2026:.2f} gCO2/MJ")
+
+# print(f"Current Fleet Avg Intensity: {avg_intensity:.2f} gCO2/MJ")  # COMMENTED OUT
+# print(f"2026 Target Intensity:       {target_2026:.2f} gCO2/MJ")    # COMMENTED OUT
+
+print(f"Current Fleet Avg Intensity: {avg_intensity:.2f} kg/nm")
+print(f"2026 Target Intensity:       {target_2026:.2f} kg/nm")
 
 # 5. Compliance Balance
 # Identify "Surplus" vessels (below target) and "Deficit" vessels (above target)
@@ -71,7 +81,8 @@ deficit_count = (ship_df['Compliance_Status'] == 'Deficit').sum()
 print(f"Surplus Vessels: {surplus_count}, Deficit Vessels: {deficit_count}")
 
 # 6. Predictive Model (train on voyage-level data for predictions)
-X = df[['ship_type', 'distance', 'fuel_consumption', 'fuel_type']]
+# Note: 'fuel_type' removed from features since we aren't using Energy logic anymore
+X = df[['ship_type', 'distance', 'fuel_consumption']] 
 y = df['CO2_emissions']
 
 # Split data (80% train, 20% test) to validate properly
@@ -80,7 +91,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 # Preprocessing pipeline
 preprocessor = ColumnTransformer(transformers=[
     ('num', 'passthrough', ['distance', 'fuel_consumption']),
-    ('cat', OneHotEncoder(handle_unknown='ignore'), ['ship_type', 'fuel_type'])
+    ('cat', OneHotEncoder(handle_unknown='ignore'), ['ship_type'])
 ])
 
 model = Pipeline(steps=[

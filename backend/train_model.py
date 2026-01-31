@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
+from sklearn.metrics import mean_absolute_error, r2_score
 import joblib
 
 # 1. Load Data from data folder
@@ -53,20 +54,57 @@ print(f"Surplus Vessels: {surplus_count}, Deficit Vessels: {deficit_count}")
 X = df[['ship_type', 'distance', 'fuel_consumption']]
 y = df['CO2_emissions']
 
+# Split data (80% train, 20% test) to validate properly
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
 # Preprocessing pipeline
 preprocessor = ColumnTransformer(transformers=[
     ('num', 'passthrough', ['distance', 'fuel_consumption']),
-    ('cat', OneHotEncoder(), ['ship_type'])
+    ('cat', OneHotEncoder(handle_unknown='ignore'), ['ship_type'])
 ])
 
 model = Pipeline(steps=[
     ('preprocessor', preprocessor),
-    ('regressor', RandomForestRegressor(n_estimators=50, random_state=42))
+    ('regressor', RandomForestRegressor(n_estimators=500, min_samples_leaf=2, random_state=42, n_jobs=-1))
 ])
 
-model.fit(X, y)
+# Train
+print("Training Random Forest Model...")
+model.fit(X_train, y_train)
 
-# 7. Save Artifacts
+
+# 7. Validate Model
+# Make predictions on the Test Set
+y_pred = model.predict(X_test)
+
+# Calculate Scores
+r2 = r2_score(y_test, y_pred)
+mae = mean_absolute_error(y_test, y_pred)
+
+print("\n" + "="*40)
+print("MODEL VALIDATION REPORT")
+print("="*40)
+print(f"R² Score (Accuracy): {r2:.4f}  (Target: > 0.90)")
+print(f"Mean Absolute Error: {mae:.2f} kg  (Avg error per trip)")
+print("-" * 40)
+
+
+# 8. Feature Importance (Proof of Logic)
+
+# Extract the internal logic to see what matters most
+rf_model = model.named_steps['regressor']
+preprocessor_step = model.named_steps['preprocessor']
+
+# Get feature names from the OneHotEncoder
+cat_features = preprocessor_step.named_transformers_['cat'].get_feature_names_out()
+all_features = ['distance', 'fuel_consumption'] + list(cat_features)
+
+print("Feature Importance(What drives CO2?)")
+for name, importance in zip(all_features, rf_model.feature_importances_):
+    print(f"   • {name}: {importance:.4f}")
+print("="*40 + "\n")
+
+# 9. Save Artifacts
 joblib.dump(model, 'model.pkl')
 joblib.dump(target_2026, 'target.pkl')
 # Save the AGGREGATED ship-level compliance data (unique ship_id per row)

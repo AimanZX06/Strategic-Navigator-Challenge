@@ -21,7 +21,7 @@ export default function PoolingSimulator({ fleet }: PoolingProps) {
 
   const calculatePool = () => {
     if (!shipA || !shipB) return "0.00";
-    // TypeScript now knows these are numbers!
+    
     return (shipA.Compliance_Balance + shipB.Compliance_Balance).toFixed(2);
   };
 

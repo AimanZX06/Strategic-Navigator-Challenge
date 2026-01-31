@@ -15,6 +15,7 @@ export interface Ship {
 export default function Home() {
   // 2. Tell 'fleet' is a list of 'Ship' objects
   const [fleet, setFleet] = useState<Ship[]>([]);
+  const [filter, setFilter] = useState("All"); // "All", "Deficit", "Surplus"
 
   useEffect(() => {
     // Fetch data from FastAPI backend
@@ -28,18 +29,39 @@ export default function Home() {
     <main className="p-8 bg-slate-50 min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-slate-800">MindX Strategic Navigator</h1>
       
-      {/* Fleet Liability Map Header with Count */}
-      <div className="flex justify-between items-center mb-4">
+      {/* Header with Count */}
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <h2 className="text-xl font-semibold text-slate-700">Fleet Liability Map</h2>
-        <span className="text-sm bg-slate-200 text-slate-600 px-3 py-1 rounded-full">
-          Total Vessels: {fleet.length}
-        </span>
+        
+        <div className="flex items-center gap-4">
+            <div className="bg-white p-1 rounded-lg border border-slate-200 shadow-sm flex gap-1">
+                {["All", "Deficit", "Surplus"].map((status) => (
+                    <button
+                        key={status}
+                        onClick={() => setFilter(status)}
+                        className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all ${
+                            filter === status
+                            ? "bg-slate-800 text-white shadow"
+                            : "text-slate-500 hover:bg-slate-100"
+                        }`}
+                    >
+                        {status}
+                    </button>
+                ))}
+            </div>
+
+            <span className="text-sm bg-slate-200 text-slate-600 px-3 py-1 rounded-full">
+                Total: {fleet.length}
+            </span>
+        </div>
       </div>
 
       <div className="max-h-[600px] overflow-y-auto pr-2 border border-slate-200 rounded-xl bg-white p-4 shadow-inner mb-8">
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {fleet.map((ship, index) => (
+          {fleet
+            .filter(ship => filter === "All" || ship.Compliance_Status === filter)
+            .map((ship, index) => (
             <div key={index} className={`p-4 rounded-lg shadow-sm border border-l-4 transition-transform hover:scale-[1.02] ${
               ship.Compliance_Status === 'Deficit' 
                 ? 'bg-red-50 border-red-500 border-t-slate-100 border-r-slate-100 border-b-slate-100' 

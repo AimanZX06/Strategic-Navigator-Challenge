@@ -25,7 +25,8 @@ interface Props {
 export default function FleetAnalytics({ fleet, darkMode = false }: Props) {
   
   const totalShips = fleet.length;
-  // Calculate Fleet Average Intensity (gCO2/MJ)
+  // Calculate Fleet Average Intensity
+  // Note: Since backend now sends kg/nm, this average is in kg/nm
   const totalIntensity = fleet.reduce((sum, ship) => sum + (ship.GHG_Intensity || 0), 0);
   const avgIntensity = totalShips > 0 ? (totalIntensity / totalShips).toFixed(2) : "0.00";
   
@@ -66,7 +67,8 @@ export default function FleetAnalytics({ fleet, darkMode = false }: Props) {
     {/* --- NEW KPI CARDS SECTION --- */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         
-        {/* Card 1: Fleet Average Intensity (The "Deep Research" Metric) */}
+        {/* --- COMMENTED OUT: ENERGY INTENSITY (gCO2/MJ) --- */}
+        {/*
         <div className={`p-4 rounded-xl border ${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
           <p className={`text-xs uppercase font-bold tracking-wider ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Avg Intensity</p>
           <div className="flex items-baseline gap-2 mt-1">
@@ -74,6 +76,17 @@ export default function FleetAnalytics({ fleet, darkMode = false }: Props) {
             <span className="text-xs font-medium text-blue-500 bg-blue-100 px-2 py-0.5 rounded-full">gCO2/MJ</span>
           </div>
           <p className="text-xs text-slate-400 mt-2">Target: &lt; 89.34 gCO2/MJ</p>
+        </div>
+        */}
+
+        {/* --- NEW: OPERATIONAL INTENSITY (kg/nm) --- */}
+        <div className={`p-4 rounded-xl border ${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
+          <p className={`text-xs uppercase font-bold tracking-wider ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Avg Operational Intensity</p>
+          <div className="flex items-baseline gap-2 mt-1">
+            <h3 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>{avgIntensity}</h3>
+            <span className="text-xs font-medium text-purple-500 bg-purple-100 px-2 py-0.5 rounded-full">kg/nm</span>
+          </div>
+          <p className="text-xs text-slate-400 mt-2">Target: &lt; Fleet Avg - 5%</p>
         </div>
 
         {/* Card 2: Compliance Rate */}

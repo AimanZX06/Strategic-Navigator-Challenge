@@ -20,6 +20,7 @@ export default function PoolingSimulator({ fleet, isLoading = false, darkMode = 
   // These states can be a Ship object OR null (if nothing is selected)
   const [shipA, setShipA] = useState<Ship | null>(null);
   const [shipB, setShipB] = useState<Ship | null>(null);
+
   // Memoized filtered lists for performance
   const deficitShips = useMemo(() => 
     fleet.filter(s => s.Compliance_Status === 'Deficit'), [fleet]
@@ -27,9 +28,10 @@ export default function PoolingSimulator({ fleet, isLoading = false, darkMode = 
   const surplusShips = useMemo(() => 
     fleet.filter(s => s.Compliance_Status === 'Surplus'), [fleet]
   );
+
   const calculatePool = () => {
     if (!shipA || !shipB) return "0.00";
-    
+    // The math is simple addition: (-2.5) + (+3.0) = +0.5
     return (shipA.Compliance_Balance + shipB.Compliance_Balance).toFixed(2);
   };
 
@@ -62,7 +64,7 @@ export default function PoolingSimulator({ fleet, isLoading = false, darkMode = 
         )}
       </div>
       <p className={`mb-8 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-          Pair a high-emitting vessel (Deficit) with a low-emitting vessel (Surplus) to check combined compliance.
+          Pair a high-intensity vessel (Deficit) with a low-intensity vessel (Surplus) to check combined FuelEU compliance.
       </p>
 
       <div className="flex flex-col md:flex-row gap-8 mb-8">
@@ -87,7 +89,11 @@ export default function PoolingSimulator({ fleet, isLoading = false, darkMode = 
               <option value="">{isLoading ? 'Loading...' : deficitShips.length === 0 ? 'No deficit vessels' : '-- Select Vessel --'}</option>
               {deficitShips.map(s => (
                 <option key={s.ship_id} value={s.ship_id}>
-                    {s.ship_id} ({Number(s.Compliance_Balance).toFixed(1)} kg/NM)
+                    {/* OLD UNIT: gCO2/MJ (Commented Out) */}
+                    {/* {s.ship_id} ({Number(s.Compliance_Balance).toFixed(2)} gCO2/MJ) */}
+                    
+                    {/* NEW UNIT: kg/nm */}
+                    {s.ship_id} ({Number(s.Compliance_Balance).toFixed(2)} kg/nm)
                 </option>
               ))}
             </select>
@@ -124,7 +130,11 @@ export default function PoolingSimulator({ fleet, isLoading = false, darkMode = 
               <option value="">{isLoading ? 'Loading...' : surplusShips.length === 0 ? 'No surplus vessels' : '-- Select Vessel --'}</option>
               {surplusShips.map(s => (
                 <option key={s.ship_id} value={s.ship_id}>
-                    {s.ship_id} (+{Number(s.Compliance_Balance).toFixed(1)} kg/NM)
+                    {/* OLD UNIT: gCO2/MJ (Commented Out) */}
+                    {/* {s.ship_id} (+{Number(s.Compliance_Balance).toFixed(2)} gCO2/MJ) */}
+
+                    {/* NEW UNIT: kg/nm */}
+                    {s.ship_id} (+{Number(s.Compliance_Balance).toFixed(2)} kg/nm)
                 </option>
               ))}
             </select>
@@ -142,7 +152,11 @@ export default function PoolingSimulator({ fleet, isLoading = false, darkMode = 
             }`}
           >
             <h3 className={`text-3xl font-bold ${poolTotal >= 0 ? 'text-green-800' : 'text-red-800'}`}>
-                Net Balance: {poolTotal} kg/NM
+                {/* OLD UNIT: gCO2/MJ (Commented Out) */}
+                {/* Net Balance: {poolTotal} gCO2/MJ */}
+
+                {/* NEW UNIT: kg/nm */}
+                Net Balance: {poolTotal} kg/nm
             </h3>
             <p className="font-semibold mt-2 text-slate-700">
                 {poolTotal >= 0 

@@ -5,14 +5,24 @@ interface VoyagePlannerProps {
     darkMode?: boolean;
 }
 
+// Define the shape of the response from the backend
+interface PredictionResult {
+    predicted_co2: number;
+    ghg_intensity: number;
+    compliance_status: string;
+    compliance_balance: number;
+    target_used: number; // Added to match the backend response
+}
+
 export default function VoyagePlanner({ darkMode = false }: VoyagePlannerProps) {
     // Input States
     const [shipType, setShipType] = useState("Oil Service Boat");
     const [distance, setDistance] = useState("");
     const [fuel, setFuel] = useState("");
+    const [fuelType, setFuelType] = useState("HFO");
 
     // Output State
-    const [prediction, setPrediction] = useState<number | null>(null);
+    const [result, setResult] = useState<PredictionResult | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -20,7 +30,8 @@ export default function VoyagePlanner({ darkMode = false }: VoyagePlannerProps) 
         setShipType("Oil Service Boat");
         setDistance("");
         setFuel("");
-        setPrediction(null);
+        setFuelType("HFO");
+        setResult(null);
         setError(null);
     };
 
@@ -32,7 +43,7 @@ export default function VoyagePlanner({ darkMode = false }: VoyagePlannerProps) 
         }
 
         setLoading(true);
-        setPrediction(null);
+        setResult(null);
         setError(null);
 
         try {
@@ -43,7 +54,8 @@ export default function VoyagePlanner({ darkMode = false }: VoyagePlannerProps) 
                 body: JSON.stringify({
                     ship_type: shipType,
                     distance: parseFloat(distance),
-                    fuel_consumption: parseFloat(fuel)
+                    fuel_consumption: parseFloat(fuel),
+                    fuel_type: fuelType 
                 }),
             });
 
@@ -51,7 +63,7 @@ export default function VoyagePlanner({ darkMode = false }: VoyagePlannerProps) 
 
             // 2. Get the Result
             const data = await res.json();
-            setPrediction(data.predicted_co2);
+            setResult(data);
         } catch (err) {
             console.error(err);
             setError("Failed to connect to Model. Is the backend running?");
@@ -64,7 +76,7 @@ export default function VoyagePlanner({ darkMode = false }: VoyagePlannerProps) 
 
             <div className="flex items-center justify-between mb-2">
                 <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-slate-800'}`}>Voyage Planner</h2>
-                {(distance || fuel || prediction) && (
+                {(distance || fuel || result) && (
                     <button
                         onClick={handleReset}
                         className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors ${darkMode ? 'text-slate-300 bg-slate-700 hover:bg-slate-600' : 'text-slate-600 bg-slate-100 hover:bg-slate-200'}`}
@@ -78,7 +90,7 @@ export default function VoyagePlanner({ darkMode = false }: VoyagePlannerProps) 
             </div>
 
             <p className={`mb-8 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-                Plan a future trip and use the Random Forest model to predict your CO2 liability.
+                Predict FuelEU Maritime compliance for a future voyage using the Random Forest model.
             </p>
 
             {/* Error Message */}
@@ -88,15 +100,10 @@ export default function VoyagePlanner({ darkMode = false }: VoyagePlannerProps) 
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <p className={`text-sm font-medium ${darkMode ? 'text-red-400' : 'text-red-600'}`}>{error}</p>
-                    <button onClick={() => setError(null)} className={`ml-auto ${darkMode ? 'text-red-500 hover:text-red-400' : 'text-red-400 hover:text-red-600'}`}>
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
                 </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {/* Input 1: Ship Type */}
                 <div>
                     <label className={`flex items-center gap-2 text-sm font-bold mb-3 uppercase ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
@@ -115,7 +122,23 @@ export default function VoyagePlanner({ darkMode = false }: VoyagePlannerProps) 
                     </select>
                 </div>
 
-                {/* Input 2: Distance */}
+                {/* Input 2: Fuel Type */}
+                <div>
+                    <label className={`flex items-center gap-2 text-sm font-bold mb-3 uppercase ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                        <span className="w-3 h-3 bg-pink-500 rounded-full"></span>
+                        Fuel Type
+                    </label>
+                    <select 
+                        value={fuelType} 
+                        onChange={(e) => setFuelType(e.target.value)}
+                        className={`w-full p-4 text-base border-2 rounded-xl focus:outline-none focus:ring-4 transition-all cursor-pointer font-medium ${darkMode ? 'border-slate-600 bg-slate-700 focus:ring-pink-900 focus:border-pink-500 text-slate-200' : 'border-slate-200 bg-slate-50/50 focus:ring-pink-100 focus:border-pink-400 text-slate-700'}`}
+                    >
+                        <option value="HFO">Heavy Fuel Oil (HFO)</option>
+                        <option value="Diesel">Marine Diesel (MDO)</option>
+                    </select>
+                </div>
+
+                {/* Input 3: Distance */}
                 <div>
                     <label className={`flex items-center gap-2 text-sm font-bold mb-3 uppercase ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
                         <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
@@ -130,11 +153,11 @@ export default function VoyagePlanner({ darkMode = false }: VoyagePlannerProps) 
                     />
                 </div>
 
-                {/* Input 3: Fuel */}
+                {/* Input 4: Fuel Amount */}
                 <div>
                     <label className={`flex items-center gap-2 text-sm font-bold mb-3 uppercase ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
                         <span className="w-3 h-3 bg-purple-500 rounded-full"></span>
-                        Fuel Consumption (kg)
+                        Fuel (kg)
                     </label>
                     <input 
                         type="number" 
@@ -157,47 +180,66 @@ export default function VoyagePlanner({ darkMode = false }: VoyagePlannerProps) 
             >
                 {loading ? (
                     <span className="flex items-center justify-center gap-3">
-                        <svg className="w-5 h-5 animate-spin\" fill="none" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        Calculating Emissions...
+                        Calculating Compliance...
                     </span>
                 ) : (
-                    <span className="flex items-center justify-center gap-2">
-                        
-                        Predict CO2 Emissions
-                    </span>
+                    "Predict Compliance"
                 )}
             </button>
 
             {/* Result Box */}
-            {prediction !== null && (
-                <div className={`mt-8 p-8 rounded-2xl border-2 text-center shadow-inner ${darkMode ? 'bg-emerald-900/30 border-emerald-700' : 'bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200'}`}>
-                    <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-4 ${darkMode ? 'bg-emerald-800' : 'bg-emerald-100'}`}>
-                        <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                        <p className={`text-sm font-semibold uppercase tracking-wider ${darkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>Projected Emission Impact</p>
-                    </div>
-                    <p className={`text-6xl font-bold mt-2 mb-2 tracking-tight ${darkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>
-                        {prediction.toFixed(2)}
-                    </p>
-                    <span className={`text-sm font-bold uppercase tracking-widest ${darkMode ? 'text-emerald-500' : 'text-emerald-600'}`}>
-                        Kilograms of CO₂
-                    </span>
-                    
-                    {/* Additional context */}
-                    <div className={`mt-6 pt-6 border-t grid grid-cols-3 gap-4 text-sm ${darkMode ? 'border-emerald-700' : 'border-emerald-200'}`}>
-                        <div>
-                            <p className={`mb-1 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>Ship Type</p>
-                            <p className={`font-semibold ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>{shipType}</p>
+            {result && (
+                <div className={`mt-8 p-8 rounded-2xl border-2 shadow-inner ${
+                    result.compliance_status === 'Surplus' 
+                    ? (darkMode ? 'bg-emerald-900/30 border-emerald-700' : 'bg-green-50 border-green-200')
+                    : (darkMode ? 'bg-red-900/30 border-red-800' : 'bg-red-50 border-red-200')
+                }`}>
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+                        
+                        {/* 1. Total CO2 */}
+                        <div className="text-center md:text-left">
+                             <p className={`text-sm font-bold uppercase tracking-wider mb-1 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Total Emissions</p>
+                             <p className={`text-4xl font-bold ${darkMode ? 'text-white' : 'text-slate-800'}`}>
+                                {result.predicted_co2.toFixed(0)} <span className="text-lg font-medium text-slate-400">kg</span>
+                             </p>
                         </div>
-                        <div>
-                            <p className={`mb-1 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>Distance</p>
-                            <p className={`font-semibold ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>{distance} NM</p>
+
+                        {/* 2. GHG Intensity (THE KEY METRIC) */}
+                        <div className="text-center p-4 rounded-xl border border-dashed border-slate-300">
+                             <p className={`text-sm font-bold uppercase tracking-wider mb-1 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>GHG Intensity</p>
+                             <div className="flex items-baseline justify-center gap-1">
+                                <p className={`text-4xl font-bold ${result.compliance_status === 'Surplus' ? 'text-green-600' : 'text-red-600'}`}>
+                                    {result.ghg_intensity.toFixed(2)}
+                                </p>
+                                {/* OLD UNIT: gCO2/MJ (Commented Out) */}
+                                {/* <span className="text-sm font-bold text-slate-500">gCO2/MJ</span> */}
+
+                                {/* NEW UNIT: kg/nm */}
+                                <span className="text-sm font-bold text-slate-500">kg/nm</span>
+                             </div>
+                             <p className="text-xs text-slate-400 mt-1">Target: &lt; {result.target_used}</p>
                         </div>
-                        <div>
-                            <p className={`mb-1 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>Fuel Used</p>
-                            <p className={`font-semibold ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>{fuel} kg</p>
+
+                        {/* 3. Compliance Status */}
+                        <div className="text-center md:text-right">
+                             <p className={`text-sm font-bold uppercase tracking-wider mb-1 ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Status</p>
+                             <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${
+                                 result.compliance_status === 'Surplus' 
+                                 ? 'bg-green-100 text-green-700' 
+                                 : 'bg-red-100 text-red-700'
+                             }`}>
+                                <span className={`w-2 h-2 rounded-full animate-pulse ${
+                                    result.compliance_status === 'Surplus' ? 'bg-green-500' : 'bg-red-500'
+                                }`}></span>
+                                <span className="font-bold uppercase">{result.compliance_status}</span>
+                             </div>
+                             <p className={`text-sm mt-2 font-mono ${result.compliance_status === 'Surplus' ? 'text-green-600' : 'text-red-600'}`}>
+                                 Balance: {result.compliance_balance > 0 ? '+' : ''}{result.compliance_balance.toFixed(2)}
+                             </p>
                         </div>
                     </div>
                 </div>

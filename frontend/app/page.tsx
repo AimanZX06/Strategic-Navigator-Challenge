@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import PoolingSimulator from './components/PoolingSimulator';
 import VoyagePlanner from './components/VoyagePlanner';
 import FleetAnalytics from './components/FleetAnalytics';
@@ -18,14 +18,33 @@ export default function Home() {
   // 2. Tell 'fleet' is a list of 'Ship' objects
   const [fleet, setFleet] = useState<Ship[]>([]);
   const [filter, setFilter] = useState("All"); // "All", "Deficit", "Surplus"
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Fetch data from FastAPI backend
+    setIsLoading(true);
+    setError(null);
     fetch('http://127.0.0.1:8000/api/fleet')
-      .then((res) => res.json())
-      .then((data) => setFleet(data))
-      .catch(err => console.error("API Error:", err));
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        setFleet(data);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error("API Error:", err);
+        setError(err.message || "Failed to load fleet data");
+        setIsLoading(false);
+      });
   }, []);
+
+  // Memoized filtered fleet for performance
+  const filteredFleet = useMemo(() => {
+    return fleet.filter(ship => filter === "All" || ship.Compliance_Status === filter);
+  }, [fleet, filter]);
 
 
   return (
@@ -61,12 +80,46 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="max-h-[600px] overflow-y-auto pr-2 border border-slate-200 rounded-xl bg-white p-4 shadow-inner mb-8">
+      {/* Loading State */}
+      {isLoading && (
+        <div className="flex items-center justify-center h-64 bg-white rounded-xl border border-slate-200 mb-8">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-10 h-10 border-4 border-slate-200 border-t-slate-600 rounded-full animate-spin"></div>
+            <p className="text-slate-500 font-medium">Loading fleet data...</p>
+          </div>
+        </div>
+      )}
 
+      {/* Error State */}
+      {error && !isLoading && (
+        <div className="flex items-center justify-center h-64 bg-red-50 rounded-xl border border-red-200 mb-8">
+          <div className="flex flex-col items-center gap-3 text-center px-4">
+            <svg className="w-12 h-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <p className="text-red-600 font-semibold">Failed to load fleet data</p>
+            <p className="text-red-500 text-sm">{error}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Fleet Grid - Only show when loaded */}
+      {!isLoading && !error && (
+      <div className="max-h-[600px] overflow-y-auto pr-2 border border-slate-200 rounded-xl bg-white p-4 shadow-inner mb-8" role="list" aria-label="Fleet vessels list">
+
+        {filteredFleet.length === 0 ? (
+          <div className="flex items-center justify-center h-32 text-slate-400">
+            <p>No vessels found matching the filter.</p>
+          </div>
+        ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {fleet
-            .filter(ship => filter === "All" || ship.Compliance_Status === filter)
-            .map((ship, index) => (
+          {filteredFleet.map((ship, index) => (
               <div key={index} className={`p-4 rounded-lg shadow-sm border border-l-4 transition-transform hover:scale-[1.02] ${ship.Compliance_Status === 'Deficit'
                   ? 'bg-red-50 border-red-500 border-t-slate-100 border-r-slate-100 border-b-slate-100'
                   : 'bg-green-50 border-green-500 border-t-slate-100 border-r-slate-100 border-b-slate-100'
@@ -97,10 +150,12 @@ export default function Home() {
               </div>
             ))}
         </div>
+        )}
       </div>
+      )}
 
       {/* Pooling Simulator Component */}
-      <PoolingSimulator fleet={fleet} />
+      <PoolingSimulator fleet={fleet} isLoading={isLoading} />
 
       {/* Voyage Planner*/}
       <VoyagePlanner />

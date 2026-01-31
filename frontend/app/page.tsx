@@ -212,9 +212,14 @@ export default function Home() {
                     }`}>
                     {Number(ship.Compliance_Balance) > 0 ? "+" : ""}
                     {Number(ship.Compliance_Balance).toFixed(2)}
-                    {/* UPDATED UNIT: gCO2/MJ */}
-                    <span className={`ml-1 text-[10px] font-bold tracking-wide ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
+                    {/* OLD UNIT: gCO2/MJ (Commented Out) */}
+                    {/* <span className={`ml-1 text-[10px] font-bold tracking-wide ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
                       gCO2/MJ
+                    </span> */}
+
+                    {/* NEW UNIT: kg/nm */}
+                    <span className={`ml-1 text-[10px] font-bold tracking-wide ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
+                      kg/nm
                     </span>
                   </span>
 

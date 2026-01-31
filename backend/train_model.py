@@ -7,6 +7,14 @@ from sklearn.pipeline import Pipeline
 from sklearn.metrics import mean_absolute_error, r2_score
 import joblib
 
+
+# Constraints: Energy Density (LCV)
+# Lower Calorific Value (MJ/kg) according to ISO 8217 / FuelEU Maritime
+LCV_FACTORS = {
+    'HFO': 40.2,   # Heavy Fuel Oil
+    'Diesel': 42.7 # Marine Diesel / MGO
+}
+
 # 1. Load Data from data folder
 try:
     df = pd.read_csv('../data/mindx test dataset.csv')
@@ -15,6 +23,15 @@ except FileNotFoundError:
     print("Error: 'mindx test dataset.csv' not found in data/ folder.")
     exit()
 
+
+# Calculate Energy Consumed (MJ)
+# Need to calculate the energy for every single voyage first
+# Logic: Energy (MJ) = Fuel (kg) * LCV (MJ/kg)
+df['Energy_MJ'] = df.apply(
+    lambda row: row['fuel_consumption'] * LCV_FACTORS.get(row['fuel_type'], 40.2), 
+    axis=1
+)
+
 # 2. Aggregate by Ship (Annual totals per vessel)
 # Each ship has multiple voyages - we need ONE compliance status per vessel
 ship_df = df.groupby('ship_id').agg({
@@ -22,19 +39,22 @@ ship_df = df.groupby('ship_id').agg({
     'CO2_emissions': 'sum',         # Total annual CO2 emissions
     'distance': 'sum',              # Total annual distance
     'fuel_consumption': 'sum',      # Total annual fuel consumption
+    'Energy_MJ': 'sum'              # Total annual energy
 }).reset_index()
 
 print(f"Aggregated {len(df)} voyages into {len(ship_df)} unique vessels.")
 
 # 3. GHG Intensity Calculation (per vessel)
-# Formula: Total CO2 emissions / Total Distance
-ship_df['GHG_Intensity'] = ship_df['CO2_emissions'] / ship_df['distance']
+# Formula: Grams of CO2 / Energy in MJ
+ship_df['GHG_Intensity'] = (ship_df['CO2_emissions'] * 1000) / ship_df['Energy_MJ']
 
 # 4. Regulatory Benchmarking
 # Target is 5% lower than fleet average
+# Calculate a dynamic target based on the fleet average to keep it relative.
 avg_intensity = ship_df['GHG_Intensity'].mean()
 target_2026 = avg_intensity * 0.95
-print(f"2026 Target Intensity: {target_2026}")
+print(f"Current Fleet Avg Intensity: {avg_intensity:.2f} gCO2/MJ")
+print(f"2026 Target Intensity:       {target_2026:.2f} gCO2/MJ")
 
 # 5. Compliance Balance
 # Identify "Surplus" vessels (below target) and "Deficit" vessels (above target)
@@ -51,7 +71,7 @@ deficit_count = (ship_df['Compliance_Status'] == 'Deficit').sum()
 print(f"Surplus Vessels: {surplus_count}, Deficit Vessels: {deficit_count}")
 
 # 6. Predictive Model (train on voyage-level data for predictions)
-X = df[['ship_type', 'distance', 'fuel_consumption']]
+X = df[['ship_type', 'distance', 'fuel_consumption', 'fuel_type']]
 y = df['CO2_emissions']
 
 # Split data (80% train, 20% test) to validate properly
@@ -60,7 +80,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 # Preprocessing pipeline
 preprocessor = ColumnTransformer(transformers=[
     ('num', 'passthrough', ['distance', 'fuel_consumption']),
-    ('cat', OneHotEncoder(handle_unknown='ignore'), ['ship_type'])
+    ('cat', OneHotEncoder(handle_unknown='ignore'), ['ship_type', 'fuel_type'])
 ])
 
 model = Pipeline(steps=[
@@ -82,7 +102,7 @@ r2 = r2_score(y_test, y_pred)
 mae = mean_absolute_error(y_test, y_pred)
 
 print("\n" + "="*40)
-print("MODEL VALIDATION REPORT")
+print("Model Validation Report")
 print("="*40)
 print(f"R² Score (Accuracy): {r2:.4f}  (Target: > 0.90)")
 print(f"Mean Absolute Error: {mae:.2f} kg  (Avg error per trip)")

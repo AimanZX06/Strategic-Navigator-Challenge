@@ -5,13 +5,13 @@ import VoyagePlanner from './components/VoyagePlanner';
 import FleetAnalytics from './components/FleetAnalytics';
 
 // 1. Define the Shape of a Ship
-// This tells what data to expect from the API
 export interface Ship {
   ship_id: string;
   ship_type: string;
   route_id: string;
   Compliance_Status: string;
   Compliance_Balance: number;
+  GHG_Intensity: number;
 }
 
 export default function Home() {
@@ -212,8 +212,9 @@ export default function Home() {
                     }`}>
                     {Number(ship.Compliance_Balance) > 0 ? "+" : ""}
                     {Number(ship.Compliance_Balance).toFixed(2)}
+                    {/* UPDATED UNIT: gCO2/MJ */}
                     <span className={`ml-1 text-[10px] font-bold tracking-wide ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-                      kg/NM
+                      gCO2/MJ
                     </span>
                   </span>
 

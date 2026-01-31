@@ -29,8 +29,8 @@ export default function PoolingSimulator({ fleet }: PoolingProps) {
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-200 mt-8">
-      <h2 className="text-xl font-bold mb-4 text-blue-900">Pooling Arbitrage Simulator</h2>
-      <p className="text-sm text-slate-500 mb-6">
+      <h2 className="text-xl text-black font-bold mb-4">Pooling Arbitrage Simulator</h2>
+      <p className="text-sm text-black mb-6">
           Pair a high-emitting vessel (Deficit) with a low-emitting vessel (Surplus) to check combined compliance.
       </p>
 
@@ -70,7 +70,7 @@ export default function PoolingSimulator({ fleet }: PoolingProps) {
             poolTotal >= 0 ? 'bg-green-100 border-green-400' : 'bg-red-100 border-red-400'
           }`}>
             <h3 className={`text-3xl font-bold ${poolTotal >= 0 ? 'text-green-800' : 'text-red-800'}`}>
-                Net Balance: {poolTotal}
+                Net Balance: {poolTotal} kg/NM
             </h3>
             <p className="font-semibold mt-2 text-slate-700">
                 {poolTotal >= 0 

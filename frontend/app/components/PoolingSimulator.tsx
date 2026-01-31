@@ -93,7 +93,7 @@ export default function PoolingSimulator({ fleet, isLoading = false, darkMode = 
                     {/* {s.ship_id} ({Number(s.Compliance_Balance).toFixed(2)} gCO2/MJ) */}
                     
                     {/* NEW UNIT: kg/nm */}
-                    {s.ship_id} ({Number(s.Compliance_Balance).toFixed(2)} kg/nm)
+                    {s.ship_id} ({Number(s.Compliance_Balance).toFixed(2)} kg/NM)
                 </option>
               ))}
             </select>
@@ -134,7 +134,7 @@ export default function PoolingSimulator({ fleet, isLoading = false, darkMode = 
                     {/* {s.ship_id} (+{Number(s.Compliance_Balance).toFixed(2)} gCO2/MJ) */}
 
                     {/* NEW UNIT: kg/nm */}
-                    {s.ship_id} (+{Number(s.Compliance_Balance).toFixed(2)} kg/nm)
+                    {s.ship_id} (+{Number(s.Compliance_Balance).toFixed(2)} kg/NM)
                 </option>
               ))}
             </select>
@@ -156,7 +156,7 @@ export default function PoolingSimulator({ fleet, isLoading = false, darkMode = 
                 {/* Net Balance: {poolTotal} gCO2/MJ */}
 
                 {/* NEW UNIT: kg/nm */}
-                Net Balance: {poolTotal} kg/nm
+                Net Balance: {poolTotal} kg/NM
             </h3>
             <p className="font-semibold mt-2 text-slate-700">
                 {poolTotal >= 0 

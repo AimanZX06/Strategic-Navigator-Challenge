@@ -84,7 +84,7 @@ export default function FleetAnalytics({ fleet, darkMode = false }: Props) {
           <p className={`text-xs uppercase font-bold tracking-wider ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Avg Operational Intensity</p>
           <div className="flex items-baseline gap-2 mt-1">
             <h3 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>{avgIntensity}</h3>
-            <span className="text-xs font-medium text-purple-500 bg-purple-100 px-2 py-0.5 rounded-full">kg/nm</span>
+            <span className="text-xs font-medium text-purple-500 bg-purple-100 px-2 py-0.5 rounded-full">kg/NM</span>
           </div>
           <p className="text-xs text-slate-400 mt-2">Target: &lt; Fleet Avg - 5%</p>
         </div>

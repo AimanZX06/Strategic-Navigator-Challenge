@@ -219,7 +219,7 @@ export default function VoyagePlanner({ darkMode = false }: VoyagePlannerProps) 
                                 {/* <span className="text-sm font-bold text-slate-500">gCO2/MJ</span> */}
 
                                 {/* NEW UNIT: kg/nm */}
-                                <span className="text-sm font-bold text-slate-500">kg/nm</span>
+                                <span className="text-sm font-bold text-slate-500">kg/NM</span>
                              </div>
                              <p className="text-xs text-slate-400 mt-1">Target: &lt; {result.target_used}</p>
                         </div>

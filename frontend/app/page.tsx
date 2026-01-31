@@ -219,7 +219,7 @@ export default function Home() {
 
                     {/* NEW UNIT: kg/nm */}
                     <span className={`ml-1 text-[10px] font-bold tracking-wide ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
-                      kg/nm
+                      kg/NM
                     </span>
                   </span>
 

@@ -46,7 +46,7 @@ export default function VoyagePlanner() {
     };
 
     return (
-        <div className="bg-white p-6 rounded-xl shadow-lg mt-8 mb-12">
+        <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-200 mt-8 mb-12">
             <div className="flex items-center gap-3 mb-4">
                 <h2 className="text-xl text-black font-bold">Voyage Planner</h2>
             </div>
@@ -81,7 +81,7 @@ export default function VoyagePlanner() {
                     <label className="block text-xs font-bold mb-2 text-black uppercase tracking-wider">Fuel Consumption (kg)</label>
                     <input type="number" value={fuel} onChange={(e) => setFuel(e.target.value)}
                         className="w-full p-3 rounded bg-white border border-black-600 focus:border-black text-black outline-none placeholder-black-500"
-                        placeholder="e.g. 50" />
+                        placeholder="e.g. 5000" />
                 </div>
             </div>
 
@@ -102,7 +102,6 @@ export default function VoyagePlanner() {
                     <p className="text-5xl font-bold text-black mt-3 mb-1">
                         {prediction.toFixed(2)}
                     </p>
-                    {/* "Units" removed. We now call it an Index or Score. */}
                     <span className="text-black text-sm font-bold uppercase tracking-widest">
                         Kilogram of CO2
                     </span>

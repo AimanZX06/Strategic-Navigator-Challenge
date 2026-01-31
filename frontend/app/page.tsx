@@ -30,7 +30,7 @@ export default function Home() {
 
   return (
     <main className="p-8 bg-slate-50 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6 text-slate-800">MindX Strategic Navigator</h1>
+      <h1 className="text-3xl font-bold mb-6 text-slate-800 text-center">MindX Strategic Navigator</h1>
 
       {/* Fleet Chart Component */}
       <FleetAnalytics fleet={fleet} />

@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from 'react';
 import PoolingSimulator from './components/PoolingSimulator';
+import FleetChart from './components/FleetAnalytics';
+import FleetAnalytics from './components/FleetAnalytics';
 
 // 1. Define the Shape of a Ship
 // This tells what data to expect from the API
@@ -25,10 +27,14 @@ export default function Home() {
       .catch(err => console.error("API Error:", err));
   }, []);
 
+
   return (
     <main className="p-8 bg-slate-50 min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-slate-800">MindX Strategic Navigator</h1>
       
+      {/* Fleet Chart Component */}
+      <FleetAnalytics fleet={fleet} />
+
       {/* Header with Count */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <h2 className="text-xl font-semibold text-slate-700">Fleet Liability Map</h2>
@@ -51,7 +57,7 @@ export default function Home() {
             </div>
 
             <span className="text-sm bg-slate-200 text-slate-600 px-3 py-1 rounded-full">
-                Total: {fleet.length}
+                Total: {fleet.length} vessels
             </span>
         </div>
       </div>

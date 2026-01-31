@@ -48,34 +48,60 @@ export default function Home() {
 
 
   return (
-    <main className="p-8 bg-slate-50 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6 text-slate-800 text-center">MindX Strategic Navigator</h1>
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50">
+      {/* Hero Header */}
+      <header className="gradient-header text-white px-8 py-6 mb-8 shadow-lg">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center gap-3">
+            
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">MIND X Strategic Navigator</h1>
+              <p className="text-blue-200 text-sm">Fleet Compliance & Arbitrage Dashboard</p>
+            </div>
+          </div>
+        </div>
+      </header>
 
+      <div className="px-8 pb-8 max-w-7xl mx-auto">
       {/* Fleet Chart Component */}
       <FleetAnalytics fleet={fleet} />
 
       {/* Header with Count */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-        <h2 className="text-xl font-semibold text-slate-700">Fleet Liability Map</h2>
+        <div>
+          <h2 className="text-2xl font-bold text-slate-800">Fleet Liability Map</h2>
+          <p className="text-slate-500 text-sm mt-1">Monitor vessel compliance status and penalty risks</p>
+        </div>
 
         <div className="flex items-center gap-4">
-          <div className="bg-white p-1 rounded-lg border border-slate-200 shadow-sm flex gap-1">
-            {["All", "Deficit", "Surplus"].map((status) => (
-              <button
-                key={status}
-                onClick={() => setFilter(status)}
-                className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all ${filter === status
-                    ? "bg-slate-800 text-white shadow"
-                    : "text-slate-500 hover:bg-slate-100"
-                  }`}
-              >
-                {status}
-              </button>
-            ))}
+          <div className="bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm flex gap-1">
+            {["All", "Deficit", "Surplus"].map((status) => {
+              const isActive = filter === status;
+              const colorClass = status === "Deficit" 
+                ? (isActive ? "bg-red-500 text-white shadow-red-200" : "text-red-600 hover:bg-red-50")
+                : status === "Surplus"
+                ? (isActive ? "bg-emerald-500 text-white shadow-emerald-200" : "text-emerald-600 hover:bg-emerald-50")
+                : (isActive ? "bg-slate-800 text-white shadow-slate-200" : "text-slate-600 hover:bg-slate-100");
+              
+              return (
+                <button
+                  key={status}
+                  onClick={() => setFilter(status)}
+                  className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${colorClass} ${isActive ? 'shadow-lg' : ''}`}
+                >
+                  {status}
+                  {status !== "All" && (
+                    <span className={`ml-2 text-xs px-1.5 py-0.5 rounded-full ${isActive ? 'bg-white/20' : 'bg-slate-100'}`}>
+                      {fleet.filter(s => s.Compliance_Status === status).length}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
 
-          <span className="text-sm bg-slate-200 text-slate-600 px-3 py-1 rounded-full">
-            Total: {fleet.length} vessels
+          <span className="text-sm bg-blue-100 text-blue-700 px-4 py-2 rounded-full font-semibold shadow-sm">
+            <span className="font-bold">{fleet.length}</span> vessels
           </span>
         </div>
       </div>
@@ -111,25 +137,30 @@ export default function Home() {
 
       {/* Fleet Grid - Only show when loaded */}
       {!isLoading && !error && (
-      <div className="max-h-[600px] overflow-y-auto pr-2 border border-slate-200 rounded-xl bg-white p-4 shadow-inner mb-8" role="list" aria-label="Fleet vessels list">
+      <div className="max-h-[600px] overflow-y-auto pr-2 border border-slate-200 rounded-2xl bg-white/50 p-5 shadow-inner mb-8" role="list" aria-label="Fleet vessels list">
 
         {filteredFleet.length === 0 ? (
           <div className="flex items-center justify-center h-32 text-slate-400">
             <p>No vessels found matching the filter.</p>
           </div>
         ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredFleet.map((ship, index) => (
-              <div key={index} className={`p-4 rounded-lg shadow-sm border border-l-4 transition-transform hover:scale-[1.02] ${ship.Compliance_Status === 'Deficit'
-                  ? 'bg-red-50 border-red-500 border-t-slate-100 border-r-slate-100 border-b-slate-100'
-                  : 'bg-green-50 border-green-500 border-t-slate-100 border-r-slate-100 border-b-slate-100'
+              <div key={index} className={`card-hover p-5 rounded-xl shadow-md border-l-4 bg-white ${ship.Compliance_Status === 'Deficit'
+                  ? 'border-l-red-500'
+                  : 'border-l-emerald-500'
                 }`}>
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-bold text-lg text-slate-900">{ship.ship_id}</h3>
-                    <p className="text-xs text-slate-500 uppercase font-semibold">{ship.ship_type}</p>
+                    <h3 className="font-bold text-lg text-slate-800 flex items-center gap-2">
+                      
+                      {ship.ship_id}
+                    </h3>
+                    <p className="text-xs text-slate-400 uppercase font-medium tracking-wide mt-1">{ship.ship_type}</p>
                   </div>
-                  <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${ship.Compliance_Status === 'Deficit' ? 'bg-red-200 text-red-800' : 'bg-green-200 text-green-800'
+                  <span className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm ${ship.Compliance_Status === 'Deficit' 
+                    ? 'bg-red-100 text-red-700 border border-red-200' 
+                    : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
                     }`}>
                     {ship.Compliance_Status}
                   </span>
@@ -159,7 +190,7 @@ export default function Home() {
 
       {/* Voyage Planner*/}
       <VoyagePlanner />
-
+      </div>
     </main>
   );
 }

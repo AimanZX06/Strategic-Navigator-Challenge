@@ -43,14 +43,20 @@ export default function FleetAnalytics({ fleet }: Props) {
   const typeData = Array.from(typeMap.values());
 
   return (
-    <div className="mb-8">
-      <h2 className="text-xl font-semibold mb-4 text-slate-700">Fleet Analytics</h2>
+    <div className="mb-10">
+      <div className="flex items-center gap-3 mb-6">
+        
+        <div>
+          <h2 className="text-2xl font-bold text-slate-800">Fleet Analytics</h2>
+          <p className="text-slate-500 text-sm">Real-time compliance metrics and risk distribution</p>
+        </div>
+      </div>
       {/* CHANGED: grid-cols-2 so charts are wider and side-by-side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       
       {/* CHART 1: Compliance Overview (Pie) */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-        <h3 className="text-sm font-bold text-slate-500 uppercase mb-4 text-center">Fleet Compliance Ratio</h3>
+      <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 hover:shadow-xl transition-shadow">
+        <h3 className="text-sm font-bold text-slate-400 uppercase mb-4 text-center tracking-wider">Fleet Compliance Ratio</h3>
         <div className="h-[250px]">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -76,8 +82,8 @@ export default function FleetAnalytics({ fleet }: Props) {
       </div>
 
       {/* CHART 2: Risk by Vessel Type (Grouped Bar) */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-        <h3 className="text-sm font-bold text-slate-500 uppercase mb-4 text-center">Risk by Vessel Type</h3>
+      <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 hover:shadow-xl transition-shadow">
+        <h3 className="text-sm font-bold text-slate-400 uppercase mb-4 text-center tracking-wider">Risk by Vessel Type</h3>
         <div className="h-[250px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={typeData}>

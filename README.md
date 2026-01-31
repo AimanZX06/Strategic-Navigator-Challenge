@@ -76,25 +76,3 @@ R² Score (Accuracy): 0.9950 (Target > 0.90)
 Mean Absolute Error (MAE): 611.89 kg
 
 Key Drivers: Fuel Consumption (Primary), Distance (Secondary).
-
-## Repository Structure
-├── backend/
-│   ├── train_model.py          # ML Training & Data Generation script
-│   ├── main.py                 # FastAPI Backend
-│   ├── model.pkl               # Saved Model Artifact
-│   ├── target.pkl              # Saved Regulatory Target
-│   └── requirements.txt        # Python dependencies
-│
-├── data/                       # Dataset folder
-|
-├── frontend/
-│   ├── app/                # Next.js Pages
-│   |    └── components/    # Recharts & Simulators
-│   └── ...
-│   ├── package.json
-│   └── ...
-|
-│── notebooks/
-|   └── Analysis.ipynb          # Task C: Deep Research & Anomalies
-|
-└── README.md                   # Project Documentation

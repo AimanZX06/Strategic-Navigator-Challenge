@@ -18,9 +18,10 @@ interface Ship {
 
 interface Props {
   fleet: Ship[];
+  darkMode?: boolean;
 }
 
-export default function FleetAnalytics({ fleet }: Props) {
+export default function FleetAnalytics({ fleet, darkMode = false }: Props) {
   
   // --- CHART 1: Pie Chart Data (Surplus vs Deficit) ---
   const statusData = [
@@ -47,16 +48,16 @@ export default function FleetAnalytics({ fleet }: Props) {
       <div className="flex items-center gap-3 mb-6">
         
         <div>
-          <h2 className="text-2xl font-bold text-slate-800">Fleet Analytics</h2>
-          <p className="text-slate-500 text-sm">Real-time compliance metrics and risk distribution</p>
+          <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-slate-800'}`}>Fleet Analytics</h2>
+          <p className={`text-sm ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Real-time compliance metrics and risk distribution</p>
         </div>
       </div>
       {/* CHANGED: grid-cols-2 so charts are wider and side-by-side */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       
       {/* CHART 1: Compliance Overview (Pie) */}
-      <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 hover:shadow-xl transition-shadow">
-        <h3 className="text-sm font-bold text-slate-400 uppercase mb-4 text-center tracking-wider">Fleet Compliance Ratio</h3>
+      <div className={`p-6 rounded-2xl shadow-lg border hover:shadow-xl transition-shadow ${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}>
+        <h3 className={`text-sm font-bold uppercase mb-4 text-center tracking-wider ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>Fleet Compliance Ratio</h3>
         <div className="h-[250px]">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -73,26 +74,38 @@ export default function FleetAnalytics({ fleet }: Props) {
                 <Cell fill={COLORS.deficit} />
               </Pie>
               <Tooltip 
-                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                contentStyle={{ 
+                  borderRadius: '8px', 
+                  border: 'none', 
+                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                  backgroundColor: darkMode ? '#1e293b' : '#fff',
+                  color: darkMode ? '#e2e8f0' : '#1e293b'
+                }}
               />
-              <Legend verticalAlign="bottom" height={36}/>
+              <Legend verticalAlign="bottom" height={36} wrapperStyle={{ color: darkMode ? '#94a3b8' : '#64748b' }}/>
             </PieChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* CHART 2: Risk by Vessel Type (Grouped Bar) */}
-      <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 hover:shadow-xl transition-shadow">
-        <h3 className="text-sm font-bold text-slate-400 uppercase mb-4 text-center tracking-wider">Risk by Vessel Type</h3>
+      <div className={`p-6 rounded-2xl shadow-lg border hover:shadow-xl transition-shadow ${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-100'}`}>
+        <h3 className={`text-sm font-bold uppercase mb-4 text-center tracking-wider ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>Risk by Vessel Type</h3>
         <div className="h-[250px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={typeData}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="name" tick={{fontSize: 12}} interval={0} />
-              <YAxis />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={darkMode ? '#334155' : '#e2e8f0'} />
+              <XAxis dataKey="name" tick={{fontSize: 12, fill: darkMode ? '#94a3b8' : '#64748b'}} interval={0} />
+              <YAxis tick={{fill: darkMode ? '#94a3b8' : '#64748b'}} />
               <Tooltip 
-                cursor={{fill: 'transparent'}} 
-                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                cursor={{fill: darkMode ? 'rgba(51, 65, 85, 0.5)' : 'transparent'}} 
+                contentStyle={{ 
+                  borderRadius: '8px', 
+                  border: 'none', 
+                  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                  backgroundColor: darkMode ? '#1e293b' : '#fff',
+                  color: darkMode ? '#e2e8f0' : '#1e293b'
+                }}
               />
               <Bar dataKey="Deficit" fill={COLORS.deficit} name="Deficit" radius={[4, 4, 0, 0]} />
               <Bar dataKey="Surplus" fill={COLORS.surplus} name="Surplus" radius={[4, 4, 0, 0]} />

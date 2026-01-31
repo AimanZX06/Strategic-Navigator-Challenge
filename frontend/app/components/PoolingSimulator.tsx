@@ -89,8 +89,11 @@ export default function PoolingSimulator({ fleet, isLoading = false, darkMode = 
               <option value="">{isLoading ? 'Loading...' : deficitShips.length === 0 ? 'No deficit vessels' : '-- Select Vessel --'}</option>
               {deficitShips.map(s => (
                 <option key={s.ship_id} value={s.ship_id}>
-                    {/* UPDATED UNIT: gCO2/MJ */}
-                    {s.ship_id} ({Number(s.Compliance_Balance).toFixed(2)} gCO2/MJ)
+                    {/* OLD UNIT: gCO2/MJ (Commented Out) */}
+                    {/* {s.ship_id} ({Number(s.Compliance_Balance).toFixed(2)} gCO2/MJ) */}
+                    
+                    {/* NEW UNIT: kg/nm */}
+                    {s.ship_id} ({Number(s.Compliance_Balance).toFixed(2)} kg/nm)
                 </option>
               ))}
             </select>
@@ -127,8 +130,11 @@ export default function PoolingSimulator({ fleet, isLoading = false, darkMode = 
               <option value="">{isLoading ? 'Loading...' : surplusShips.length === 0 ? 'No surplus vessels' : '-- Select Vessel --'}</option>
               {surplusShips.map(s => (
                 <option key={s.ship_id} value={s.ship_id}>
-                    {/* UPDATED UNIT: gCO2/MJ */}
-                    {s.ship_id} (+{Number(s.Compliance_Balance).toFixed(2)} gCO2/MJ)
+                    {/* OLD UNIT: gCO2/MJ (Commented Out) */}
+                    {/* {s.ship_id} (+{Number(s.Compliance_Balance).toFixed(2)} gCO2/MJ) */}
+
+                    {/* NEW UNIT: kg/nm */}
+                    {s.ship_id} (+{Number(s.Compliance_Balance).toFixed(2)} kg/nm)
                 </option>
               ))}
             </select>
@@ -146,8 +152,11 @@ export default function PoolingSimulator({ fleet, isLoading = false, darkMode = 
             }`}
           >
             <h3 className={`text-3xl font-bold ${poolTotal >= 0 ? 'text-green-800' : 'text-red-800'}`}>
-                {/* UPDATED UNIT: gCO2/MJ */}
-                Net Balance: {poolTotal} gCO2/MJ
+                {/* OLD UNIT: gCO2/MJ (Commented Out) */}
+                {/* Net Balance: {poolTotal} gCO2/MJ */}
+
+                {/* NEW UNIT: kg/nm */}
+                Net Balance: {poolTotal} kg/nm
             </h3>
             <p className="font-semibold mt-2 text-slate-700">
                 {poolTotal >= 0 
